@@ -1,0 +1,60 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Stock {
+  id           String        @id @default(cuid())
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  tickerSymbol String?
+  companyName  String?
+  currentPrice Float?
+  transactions Transaction[]
+}
+
+model Portfolio {
+  id           String        @id @default(cuid())
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  name         String?
+  description  String?
+  user         User?         @relation(fields: [userId], references: [id])
+  userId       String?
+  transactions Transaction[]
+}
+
+model Transaction {
+  id              String                    @id @default(cuid())
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+  transactionDate DateTime?
+  typeField       EnumTransactionTypeField?
+  quantity        Int?
+  price           Float?
+  stock           Stock?                    @relation(fields: [stockId], references: [id])
+  stockId         String?
+  portfolio       Portfolio?                @relation(fields: [portfolioId], references: [id])
+  portfolioId     String?
+}
+
+model User {
+  id         String      @id @default(cuid())
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  firstName  String?
+  lastName   String?
+  username   String      @unique
+  email      String?     @unique
+  password   String
+  roles      Json
+  portfolios Portfolio[]
+}
+
+enum EnumTransactionTypeField {
+  Option1
+}
